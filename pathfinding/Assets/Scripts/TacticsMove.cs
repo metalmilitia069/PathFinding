@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class TacticsMove : MonoBehaviour
 {
+    [SerializeField]
     List<Tile> selectableTiles = new List<Tile>();
+    [SerializeField]
     GameObject[] tiles;
 
     Stack<Tile> path = new Stack<Tile>();
@@ -98,6 +100,7 @@ public class TacticsMove : MonoBehaviour
                         tile.visited = true;
                         tile.distance = 1 + t.distance;
                         process.Enqueue(tile);
+                        
                     }
                 }
             }

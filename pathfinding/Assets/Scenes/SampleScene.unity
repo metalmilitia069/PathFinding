@@ -1777,6 +1777,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ace968d96e6832a429cbfacf029849ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  selectableTiles: []
+  tiles: []
   moving: 0
   move: 5
   jumpHeight: 2
@@ -3134,6 +3136,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ace968d96e6832a429cbfacf029849ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  selectableTiles: []
+  tiles: []
   moving: 0
   move: 5
   jumpHeight: 2

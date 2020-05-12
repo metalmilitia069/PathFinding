@@ -21,8 +21,9 @@ public class playerMove : TacticsMove
             return;
         }
 
+        
 
-        if(!moving)
+        if (!moving)
         {
             FindSelectableTiles();
             CheckMouse();
