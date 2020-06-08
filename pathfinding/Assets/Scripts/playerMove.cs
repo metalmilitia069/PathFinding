@@ -21,10 +21,13 @@ public class playerMove : TacticsMove
             return;
         }
 
-        
+        //if (!isSelectedTilesFound)
+        //{
+        //    FindSelectableTiles();
+        //}
 
         if (!moving)
-        {
+        {            
             FindSelectableTiles();
             CheckMouse();
         }

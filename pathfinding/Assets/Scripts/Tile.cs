@@ -18,6 +18,12 @@ public class Tile : MonoBehaviour
     public int distance = 0; //says how far each tile is from the start file
 
 
+    //Needed for A*
+    public float f = 0;
+    public float g = 0;
+    public float h = 0;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -56,20 +62,24 @@ public class Tile : MonoBehaviour
 
         visited = false;
         parent = null;
-        distance = 0;        
+        distance = 0;
+
+
+
+        f = g = h = 0;
     }
 
-    public void FindNeighbors(float jumpHeight)
+    public void FindNeighbors(float jumpHeight, Tile target)
     {
         ResetTile();
 
-        CheckTile(Vector3.forward, jumpHeight);
-        CheckTile(-Vector3.forward, jumpHeight);
-        CheckTile(Vector3.right, jumpHeight);
-        CheckTile(-Vector3.right, jumpHeight);
+        CheckTile(Vector3.forward, jumpHeight, target);
+        CheckTile(-Vector3.forward, jumpHeight, target);
+        CheckTile(Vector3.right, jumpHeight, target);
+        CheckTile(-Vector3.right, jumpHeight, target);
     }
 
-    public void CheckTile(Vector3 direction, float jumHeight)
+    public void CheckTile(Vector3 direction, float jumHeight, Tile target)
     {
         Vector3 halfExtends = new Vector3(0.25f, (1 + jumHeight) / 2.0f, 0.25f); // ?????????????????????
         Collider[] colliders = Physics.OverlapBox(transform.position + direction, halfExtends);// ????????????????????????
@@ -80,7 +90,7 @@ public class Tile : MonoBehaviour
             if (tile != null && tile.walkable)
             {
                 RaycastHit hit;
-                if (!Physics.Raycast(tile.transform.position, Vector3.up, out hit, 1))
+                if (!Physics.Raycast(tile.transform.position, Vector3.up, out hit, 1) || (tile == target))
                 {
                     adjacencyList.Add(tile);
                 }

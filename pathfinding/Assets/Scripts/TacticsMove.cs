@@ -32,6 +32,12 @@ public class TacticsMove : MonoBehaviour
 
     public bool turn = false;
 
+
+    //A* and AI
+    public Tile actualTargetTile;
+
+    //MyVars
+    public bool isSelectedTilesFound = false;
     protected void Init()
     {
         tiles = GameObject.FindGameObjectsWithTag("Tile");
@@ -60,20 +66,20 @@ public class TacticsMove : MonoBehaviour
         return tile;
     }
 
-    public void ComputeAdjacencyList()
+    public void ComputeAdjacencyList(float jumpHeight, Tile target)
     {
         //tiles = GameObject.FindGameObjectsWithTag("Tile");  //USE HERE IF YOUR TILE MAP CHANGES OFTEN
 
         foreach (var tile in tiles)
         {
             Tile t = tile.GetComponent<Tile>();
-            t.FindNeighbors(jumpHeight);
+            t.FindNeighbors(jumpHeight, target);
         }
     }
 
     public void FindSelectableTiles()
     {
-        ComputeAdjacencyList();
+        ComputeAdjacencyList(jumpHeight, null);
         GetCurrentTile();
 
         //BFS Algorithm
@@ -105,6 +111,7 @@ public class TacticsMove : MonoBehaviour
                 }
             }
         }
+        //isSelectedTilesFound = true;
     }
 
     public void MoveToTile(Tile tile)
@@ -297,6 +304,112 @@ public class TacticsMove : MonoBehaviour
     public void EndTurn()
     {
         turn = false;
+    }
+
+    protected void FindPathAI(Tile target)//A*
+    {
+        ComputeAdjacencyList(jumpHeight, target);
+        GetCurrentTile();
+
+        List<Tile> openList = new List<Tile>();
+        List<Tile> closeList = new List<Tile>();
+
+        openList.Add(currentTile);
+        currentTile.h = Vector3.Distance(currentTile.transform.position, target.transform.position);
+        currentTile.f = currentTile.h;
+
+        while (openList.Count > 0)
+        {
+            //A* algorithm
+
+            Tile t = FindLowestF(openList);
+
+            closeList.Add(t);
+
+            if (t == target)
+            {
+                actualTargetTile = FindEndTile(t);
+                MoveToTile(actualTargetTile);
+                return;
+            }
+
+            foreach (var tile in t.adjacencyList)
+            {
+                if (closeList.Contains(tile))
+                {
+                    //Do nothing, already processed
+                }
+                else if (openList.Contains(tile))
+                {
+                    float tempG = t.g + Vector3.Distance(tile.transform.position, t.transform.position);
+
+                    if (tempG < tile.g)
+                    {
+                        tile.parent = t;
+
+                        tile.g = tempG;
+                        tile.f = tile.g + tile.h;
+                    }
+                }
+                else
+                {
+                    tile.parent = t;
+
+                    tile.g = t.g + Vector3.Distance(tile.transform.position, t.transform.position);//g is the distance to beginning
+                    tile.h = Vector3.Distance(tile.transform.position, target.transform.position);//h is the estimated distance to the end
+                    tile.f = tile.g + tile.h;
+
+                    openList.Add(tile);
+                }
+            }
+        }
+
+        //todo: what do you if there is no path to the target tile???
+        Debug.Log("Path not found");
+
+    }
+
+    protected Tile FindLowestF(List<Tile> list)
+    {
+        Tile lowest = list[0];
+
+        foreach (var tile in list)
+        {
+            if (tile.f < lowest.f)
+            {
+                lowest = tile;
+            }
+        }
+
+        list.Remove(lowest);
+
+        return lowest;
+    }
+
+    protected Tile FindEndTile(Tile t)
+    {
+        Stack<Tile> tempPath = new Stack<Tile>();
+
+        Tile next = t.parent;
+        while (next != null)
+        {
+            tempPath.Push(next);
+            next = next.parent;
+        }
+
+        if (tempPath.Count <= move)
+        {
+            return t.parent;
+        }
+
+        Tile endTile = null;//default;
+        for (int i = 0; i <= move; i++)
+        {
+            endTile = tempPath.Pop();
+        }
+
+        return endTile;
+
     }
 
 }
